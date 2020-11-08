@@ -1,0 +1,65 @@
+<iframe src="https://workshop-deck-playground.hackclub.dev/team-liquid-workshop"></iframe>
+<div class="board"></div>
+<div class="join">Join in: https://hack.af/tl-among-us</div>
+<style>
+  .join {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    padding: 1em;
+  }
+  body {
+    padding: 0;
+    margin: 0;
+  }
+  iframe {
+    border: none;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+  }
+  .board {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    position: fixed;
+  }
+  .player {
+    width: 5vw;
+    position: fixed;
+    transition: all 0.1s linear;
+  }
+  .killed {
+    opacity: 0;
+  }
+</style>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  window.onload = () => {
+    const board = document.querySelector('.board')
+    const socket = io()
+    socket.on('connect', () => {
+      console.log('client is connected')
+      socket.emit('all users')
+    })
+
+    const players = {}
+
+    socket.on('tick', data => {
+      board.innerHTML = ''
+      data.forEach(player => {
+        let playerExists = players[player.public_uuid]
+
+        let el = players[player.public_uuid] || document.createElement('img')
+        if (!playerExists) {
+          el.src = `images/${player.color}.png`
+          el.className = 'player'
+          board.appendChild(el)
+        }
+        el.style = `left: ${player.position.x}vh; top: ${player.position.y}vh;transform: scaleX(${player.player_direction == 'left' ? -1 : 1});`
+      })
+    })
+  }
+</script>

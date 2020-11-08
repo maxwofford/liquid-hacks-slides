@@ -1,0 +1,102 @@
+<script src="/socket.io/socket.io.js"></script>
+<div class="info"></div>
+<div><em>(you are <strong>not</strong> the imposter)! </em></div>
+<div><em> You can also use arrow keys or wasd </em></div>
+<!-- <button class="up">up</button>
+<button class="down">down</button>
+<button class="right">right</button>
+<button class="left">left</button> -->
+<script>
+  const socket = io()
+  window.onload = () => {
+  const memory = {
+    get: key => window.localStorage.getItem(key),
+    set: (k, v) => window.localStorage.setItem(k, v),
+  }
+  const move = direction => {
+    const data = {
+      uuid: memory.get('uuid'),
+      direction,
+      rightPressed,
+      leftPressed,
+      upPressed,
+      downPressed
+    }
+    socket.emit('move user', data)
+  }
+
+var rightPressed = false;
+var leftPressed = false;
+var upPressed = false;
+var downPressed = false;
+
+document.addEventListener("keydown", keyDownHandler, false);
+document.addEventListener("keyup", keyUpHandler, false);
+
+function keyDownHandler(e) {
+    if(e.key == "d" || e.key == "ArrowRight") {
+        rightPressed = true;
+        // console.log("Right keyDown");
+    } else if(e.key == "a" || e.key == "ArrowLeft") {
+        leftPressed = true;
+        // console.log("Left keyDown");
+    } else if(e.key == "w" || e.key == "ArrowUp") {
+        upPressed = true;
+        // console.log("Up keyDown");
+    } else if(e.key == "s" || e.key == "ArrowDown") {
+        downPressed = true;
+        // console.log("Down keyDown");
+    }
+    // console.log(e.key);
+    move("");
+}
+
+function keyUpHandler(e) {
+    if(e.key == "d" || e.key == "ArrowRight") {
+        rightPressed = false;
+        // console.log("Right keyUp");
+    } else if(e.key == "a" || e.key == "ArrowLeft") {
+        leftPressed = false;
+        // console.log("Left keyUp");
+    } else if(e.key == "w" || e.key == "ArrowUp") {
+        upPressed = false;
+        // console.log("Up keyUp");
+    } else if(e.key == "s" || e.key == "ArrowDown") {
+        downPressed = false;
+        // console.log("Down keyUp");
+    }
+    // console.log(e.key);
+    move("");
+}
+
+  // document.querySelector('.up').onclick = () => move('up')
+  // document.querySelector('.down').onclick = () => move('down')
+  // document.querySelector('.right').onclick = () => move('right')
+  // document.querySelector('.left').onclick = () => move('left')
+
+  let start = null
+  socket.on('connect', () => {
+    console.log('client is connected')
+    socket.emit('ping')
+    start = Date.now()
+
+    socket.emit('add user')
+  })
+
+  socket.on('user created', data => {
+    memory.set('uuid', data.uuid)
+    memory.set('color', data.color)
+
+    // const el = document.createElement('')
+    document.querySelector('.info').innerHTML = `<h1>You are playing as <span style="background-color: ${data.color}; padding: 0.5em;">${data.color}</span></h1>`
+  })
+
+  socket.on('pong', data => {
+    let duration = Date.now() - start
+    console.log('received pong:', data, 'duration(ms):', duration)
+  })
+}
+  socket.on('tick', data => {
+    console.log(data)
+  })
+</script>
