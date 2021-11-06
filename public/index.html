@@ -1,4 +1,11 @@
 <script src="/socket.io/socket.io.js"></script>
+<style>
+  .player {
+    width: 5vw;
+    position: fixed;
+    transition: all 0.1s linear;
+  }
+</style>
 <div class="info"></div>
 <div><em>(you are <strong>not</strong> the imposter)! </em></div>
 <div><em> You can also use arrow keys or wasd </em></div>
@@ -22,6 +29,8 @@
       upPressed,
       downPressed
     }
+
+
     socket.emit('move user', data)
   }
 
@@ -75,6 +84,7 @@ function keyUpHandler(e) {
   // document.querySelector('.left').onclick = () => move('left')
 
   let start = null
+  let playerImage = null
   socket.on('connect', () => {
     console.log('client is connected')
     socket.emit('ping')
@@ -86,17 +96,27 @@ function keyUpHandler(e) {
   socket.on('user created', data => {
     memory.set('uuid', data.uuid)
     memory.set('color', data.color)
+    memory.set('public_uuid', data.public_uuid)
 
     // const el = document.createElement('')
     document.querySelector('.info').innerHTML = `<h1>You are playing as <span style="background-color: ${data.color}; padding: 0.5em;">${data.color}</span></h1>`
+    playerImg = document.createElement('img')
+    playerImg.src=`images/${data.color}.png`
+    playerImg.className = 'player'
+    document.body.appendChild(playerImg)
+
   })
 
   socket.on('pong', data => {
     let duration = Date.now() - start
     console.log('received pong:', data, 'duration(ms):', duration)
   })
-}
+
   socket.on('tick', data => {
-    console.log(data)
+    let public_uuid = memory.get('public_uuid')
+    let current_player = data.find(pc => pc.public_uuid == public_uuid)
+    console.log({current_player})
+    playerImg.style = `left: ${current_player.position.x}vh; top: ${current_player.position.y}vh;transform: scaleX(${current_player.player_direction == 'left' ? -1 : 1});`
   })
+}
 </script>

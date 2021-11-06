@@ -30,6 +30,11 @@ io.on('connection', (socket) => {
 
     userMap[socket.uuid] = { dirty: false, color: socket.color, position: {x:0,y:0}, public_uuid: socket.public_uuid, player_direction: "right"}
 
+    // socket.to(socket.id).emit('user info', {
+    //   uuid: socket.uuid,
+    //   socket.color
+    // })
+
     socket.broadcast.emit('user joined', {
       uuid: socket.uuid,
       color: socket.color
